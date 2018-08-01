@@ -1,0 +1,21 @@
+LIBRARY FeedMonitor
+
+EXPORTS
+    MtSrvAbout
+    MtSrvStartup
+    MtSrvCleanup
+
+    MtSrvPluginCfgSet
+    MtSrvPluginCfgNext
+    MtSrvPluginCfgTotal
+
+    MtSrvTradeTransaction    
+    MtSrvTradeRequestFilter
+
+    MtSrvTradeStopsFilter
+    MtSrvTradeStopsApply
+
+    MtSrvTradePendingsFilter
+    MtSrvTradePendingsApply
+
+    MtSrvHistoryTickApply
