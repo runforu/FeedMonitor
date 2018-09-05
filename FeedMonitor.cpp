@@ -53,7 +53,6 @@ int APIENTRY MtSrvStartup(CServerInterface* server) {
 }
 
 void APIENTRY MtSrvCleanup() {
-    LOG("MtSrvCleanup");    
     Factory::GetProcessor()->Shutdown();
     Factory::SetServerInterface(NULL);
 }
@@ -75,36 +74,9 @@ int APIENTRY MtSrvPluginCfgTotal() {
     return Factory::GetConfig()->Total();
 }
 
-int APIENTRY MtSrvTradeTransaction(TradeTransInfo* trans, const UserInfo* user, int* request_id) {
-    LOG("MtSrvTradeTransaction.");
-    return RET_OK;
-}
-
 int APIENTRY MtSrvTradeRequestFilter(RequestInfo* request, const int isdemo) {
     LOG("MtSrvTradeRequestFilter.");
     return Factory::GetProcessor()->FilterTradeRequest(request);
-}
-
-int APIENTRY MtSrvTradeStopsFilter(const ConGroup* group, const ConSymbol* symbol, const TradeRecord* trade) {
-    LOG("MtSrvTradeStopsFilter.");
-    return RET_OK_NONE;
-}
-
-int APIENTRY MtSrvTradeStopsApply(const UserInfo* user, const ConGroup* group, const ConSymbol* symbol, TradeRecord* trade,
-                                  const int isTP) {
-    LOG("MtSrvTradeStopsApply.");
-    return RET_OK;
-}
-
-int APIENTRY MtSrvTradePendingsFilter(const ConGroup* group, const ConSymbol* symbol, const TradeRecord* trade) {
-    LOG("MtSrvTradePendingsFilter.");
-    return RET_OK_NONE;
-}
-
-int APIENTRY MtSrvTradePendingsApply(const UserInfo* user, const ConGroup* group, const ConSymbol* symbol,
-                                     const TradeRecord* pending, TradeRecord* trade) {
-    LOG("MtSrvTradePendingsApply.");
-    return RET_OK;
 }
 
 void APIENTRY MtSrvHistoryTickApply(const ConSymbol* symbol, FeedTick* inf) { Factory::GetProcessor()->TickApply(symbol, inf); }

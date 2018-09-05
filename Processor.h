@@ -28,6 +28,9 @@ private:
     TickMap m_tick_map;
     LONG m_reinitialize_flag;
 
+    int m_requests_total;
+    int m_rejected_requests;
+
     Synchronizer m_sync;
 
 public:
@@ -40,8 +43,8 @@ public:
 
 private:
     inline int GetInterruptSetting(char * symbol);
-    inline void Lock() { m_sync.Lock(); }
-    inline void Unlock() { m_sync.Unlock(); }
+    //inline void Lock() { m_sync.Lock(); }
+    //inline void Unlock() { m_sync.Unlock(); }
     Processor();
 };
 

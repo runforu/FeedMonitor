@@ -4,9 +4,7 @@
 #include "Loger.h"
 #include "Processor.h"
 
-void Processor::Shutdown(void) {
-    LOG("Processor-------Shutdown--------Shutdown");
-}
+void Processor::Shutdown(void) {}
 
 inline int Processor::GetInterruptSetting(char* symbol) {
     for (int i = 0; i < m_symbol_settings_count; i++) {
@@ -19,14 +17,24 @@ inline int Processor::GetInterruptSetting(char* symbol) {
 }
 
 Processor::Processor()
-    : m_reinitialize_flag(0), m_feed_monitor_login(31415), m_symbol_settings_count(0), m_disable_feed_monitor(0) {
+    : m_reinitialize_flag(0),
+      m_feed_monitor_login(31415),
+      m_rejected_requests(0),
+      m_requests_total(0),
+      m_symbol_settings_count(0),
+      m_disable_feed_monitor(0) {
     ZeroMemory(&m_manager, sizeof(m_manager));
-    m_manager.login = 31415;
+    m_manager.login = 271828;
     COPY_STR(m_manager.name, "Feed Monitor");
     COPY_STR(m_manager.ip, "FeedMonitor");
 }
 
-void Processor::ShowStatus() { LOG("Feed Monitor stops"); }
+void Processor::ShowStatus() {
+    if (Factory::GetServerInterface() != NULL && m_requests_total > 0) {
+        LOG("'%d': %d of %d requests rejected (%.2lf%%)", m_manager.login, m_rejected_requests, m_requests_total,
+            m_rejected_requests * 100.0 / m_requests_total);
+    }
+}
 
 void Processor::Initialize() {
     LOG("Processor-------------->Initializes");
@@ -54,10 +62,11 @@ void Processor::Initialize() {
     for (int i = 0; i < m_symbol_settings_count; i++) {
         LOG("%s max interrupt time: %d", m_symbol_setting[i].m_symbol, m_symbol_setting[i].m_max_interrupt_time);
     }
-#endif // _RELEASE_LOG_
+#endif  // _RELEASE_LOG_
 }
 
 int Processor::FilterTradeRequest(RequestInfo* request) {
+    LOG("Processor::FilterTradeRequest in thread = %d", GetCurrentThreadId());
     if (m_disable_feed_monitor) {
         return RET_OK;
     }
@@ -66,6 +75,7 @@ int Processor::FilterTradeRequest(RequestInfo* request) {
     if (InterlockedExchange(&m_reinitialize_flag, 0) != 0) {
         Initialize();
     }
+    m_requests_total++;
 
     int diff = GetInterruptSetting(request->trade.symbol);
     LOG("setting for %s max interrupt time = %d, current time = %d ", request->trade.symbol, diff,
@@ -73,17 +83,17 @@ int Processor::FilterTradeRequest(RequestInfo* request) {
 
     if (diff != -1 && m_tick_map.BeforeTime(request->trade.symbol, Factory::GetServerInterface()->TradeTime() - diff)) {
         LOG("FilterTradeRequest --------> RET_TRADE_OFFQUOTES");
+        m_rejected_requests++;
         return RET_TRADE_OFFQUOTES;
     }
     LOG("FilterTradeRequest --------> RET_OK");
+
     return RET_OK;
 }
 
 void Processor::TickApply(const ConSymbol* symbol, FeedTick* tick) {
-    Lock();
-#if 0
-    LOG("current time = %d; tick time = %d", Factory::GetServerInterface()->TradeTime(), tick->ctm);
-#endif
+    // Lock();
+    LOG("Processor::TickApply in thread = %d", GetCurrentThreadId());
     m_tick_map.AddTick(symbol, tick);
-    Unlock();
+    // Unlock();
 }
