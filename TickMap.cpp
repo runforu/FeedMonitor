@@ -24,16 +24,8 @@ void TickMap::AddTick(const ConSymbol* symbol, FeedTick* tick) {
     tp->m_latest_tick.ctm = tick->ctm;
     tp->m_latest_tick.ask = tick->ask;
     tp->m_latest_tick.bid = tick->bid;
-    return;
-}
 
-void TickMap::DumpTickPool(const char* symbol) {
-    int index = FindTickIndex(symbol);
-    if (index == -1) {
-        return;
-    }
-    SymbolTick* tp = &m_tick_pool[index];
-    LOG("Symbol = %s in %d: [%d %f %f];", symbol, index, tp->m_latest_tick.ctm, tp->m_latest_tick.bid, tp->m_latest_tick.ask);
+    return;
 }
 
 bool TickMap::BeforeTime(const char* symbol, time_t t) {
@@ -46,8 +38,6 @@ bool TickMap::BeforeTime(const char* symbol, time_t t) {
     LOG("%s --->last update time: %d", symbol, tp->m_latest_tick.ctm);
     return t >= tp->m_latest_tick.ctm;
 }
-
-TickAPI TickMap::FindTick(const char* symbol) { return TickAPI(); }
 
 int TickMap::FindTickIndex(const char* symbol) {
     int index = 0;

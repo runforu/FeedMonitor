@@ -4,7 +4,9 @@
 #include "Loger.h"
 #include "Processor.h"
 
-void Processor::Shutdown(void) {}
+void Processor::Shutdown(void) {
+    ShowStatus();
+}
 
 inline int Processor::GetInterruptSetting(char* symbol) {
     for (int i = 0; i < m_symbol_settings_count; i++) {
@@ -37,7 +39,8 @@ void Processor::ShowStatus() {
 }
 
 void Processor::Initialize() {
-    LOG("Processor-------------->Initializes");
+    FUNC_WARDER;
+
     Factory::GetConfig()->GetInteger("Feed Monitor ID", &m_feed_monitor_login, "271828");
     m_manager.login = m_feed_monitor_login;
     Factory::GetConfig()->GetInteger("Disable Plugin", &m_disable_feed_monitor, "0");
@@ -67,14 +70,16 @@ void Processor::Initialize() {
 
 int Processor::FilterTradeRequest(RequestInfo* request) {
     LOG("Processor::FilterTradeRequest in thread = %d", GetCurrentThreadId());
-    if (m_disable_feed_monitor) {
-        return RET_OK;
-    }
 
     //--- reinitialize if configuration changed
     if (InterlockedExchange(&m_reinitialize_flag, 0) != 0) {
         Initialize();
     }
+
+    if (m_disable_feed_monitor) {
+        return RET_OK;
+    }
+
     m_requests_total++;
 
     int diff = GetInterruptSetting(request->trade.symbol);
@@ -92,8 +97,6 @@ int Processor::FilterTradeRequest(RequestInfo* request) {
 }
 
 void Processor::TickApply(const ConSymbol* symbol, FeedTick* tick) {
-    // Lock();
     LOG("Processor::TickApply in thread = %d", GetCurrentThreadId());
     m_tick_map.AddTick(symbol, tick);
-    // Unlock();
 }

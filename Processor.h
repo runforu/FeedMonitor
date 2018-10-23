@@ -34,7 +34,9 @@ private:
     Synchronizer m_sync;
 
 public:
-    inline void Reinitialize() { InterlockedExchange(&m_reinitialize_flag, 1); }
+    inline void Reinitialize() {
+        InterlockedExchange(&m_reinitialize_flag, 1);
+    }
     void ShowStatus();
     int FilterTradeRequest(RequestInfo* request);
     void TickApply(const ConSymbol* symbol, FeedTick* tick);
@@ -42,9 +44,7 @@ public:
     void Shutdown(void);
 
 private:
-    inline int GetInterruptSetting(char * symbol);
-    //inline void Lock() { m_sync.Lock(); }
-    //inline void Unlock() { m_sync.Unlock(); }
+    inline int GetInterruptSetting(char* symbol);
     Processor();
 };
 

@@ -23,7 +23,6 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD ul_reason_for_call, LPVOID /*lpReser
             break;
 
         case DLL_PROCESS_DETACH:
-            Factory::GetProcessor()->ShowStatus();
             break;
     }
     return (TRUE);
@@ -79,4 +78,6 @@ int APIENTRY MtSrvTradeRequestFilter(RequestInfo* request, const int isdemo) {
     return Factory::GetProcessor()->FilterTradeRequest(request);
 }
 
-void APIENTRY MtSrvHistoryTickApply(const ConSymbol* symbol, FeedTick* inf) { Factory::GetProcessor()->TickApply(symbol, inf); }
+void APIENTRY MtSrvHistoryTickApply(const ConSymbol* symbol, FeedTick* inf) {
+    Factory::GetProcessor()->TickApply(symbol, inf);
+}
