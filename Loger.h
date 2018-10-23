@@ -45,7 +45,6 @@ public:
 #define LOG(format, ...) Loger::out(_CODE_, _IP_, format, ##__VA_ARGS__);
 #define LOG_INFO(info) Loger::out(_CODE_, _IP_, info);
 #define LOG_LINE Loger::out(_CODE_, _IP_, "hit func =%s, line = %d ", __FUNCTION__, __LINE__), LOG("%1024s", " ");
-
 #define FUNC_WARDER FuncWarder $INVISIBLE(__FUNCTION__);
 
 #else _RELEASE_LOG_

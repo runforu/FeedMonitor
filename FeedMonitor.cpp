@@ -74,7 +74,6 @@ int APIENTRY MtSrvPluginCfgTotal() {
 }
 
 int APIENTRY MtSrvTradeRequestFilter(RequestInfo* request, const int isdemo) {
-    LOG("MtSrvTradeRequestFilter.");
     return Factory::GetProcessor()->FilterTradeRequest(request);
 }
 

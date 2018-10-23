@@ -11,7 +11,6 @@ void Processor::Shutdown(void) {
 inline int Processor::GetInterruptSetting(char* symbol) {
     for (int i = 0; i < m_symbol_settings_count; i++) {
         if (strcmp(symbol, m_symbol_setting[i].m_symbol) == 0) {
-            LOG("Find %s interrupt time = %d", symbol, m_symbol_setting[i].m_max_interrupt_time);
             return m_symbol_setting[i].m_max_interrupt_time;
         }
     }
@@ -51,25 +50,20 @@ void Processor::Initialize() {
     for (int index = 0; Factory::GetServerInterface()->SymbolsNext(index, &security) != FALSE; index++) {
         LOG(security.symbol);
         if (Factory::GetConfig()->HasKey(security.symbol)) {
-            LOG("Has settings for %s", security.symbol);
             if (m_symbol_settings_count >= MAX_SYMBOL_SIZE) {
                 return;
             }
             COPY_STR(m_symbol_setting[m_symbol_settings_count].m_symbol, security.symbol);
-            Factory::GetConfig()->GetInteger(security.symbol, &m_symbol_setting[m_symbol_settings_count++].m_max_interrupt_time,
-                                             "60");
+            int value = 0;
+            Factory::GetConfig()->GetInteger(security.symbol, &value, "60");
+            m_symbol_setting[m_symbol_settings_count++].m_max_interrupt_time = value;
+            LOG("%s max interrupt time: %d", security.symbol, value);
         }
     }
-
-#ifdef _RELEASE_LOG_
-    for (int i = 0; i < m_symbol_settings_count; i++) {
-        LOG("%s max interrupt time: %d", m_symbol_setting[i].m_symbol, m_symbol_setting[i].m_max_interrupt_time);
-    }
-#endif  // _RELEASE_LOG_
 }
 
 int Processor::FilterTradeRequest(RequestInfo* request) {
-    LOG("Processor::FilterTradeRequest in thread = %d", GetCurrentThreadId());
+    FUNC_WARDER;
 
     //--- reinitialize if configuration changed
     if (InterlockedExchange(&m_reinitialize_flag, 0) != 0) {
@@ -87,16 +81,14 @@ int Processor::FilterTradeRequest(RequestInfo* request) {
         Factory::GetServerInterface()->TradeTime());
 
     if (diff != -1 && m_tick_map.BeforeTime(request->trade.symbol, Factory::GetServerInterface()->TradeTime() - diff)) {
-        LOG("FilterTradeRequest --------> RET_TRADE_OFFQUOTES");
+        LOG("Quote interrupted for a long time.");
         m_rejected_requests++;
         return RET_TRADE_OFFQUOTES;
     }
-    LOG("FilterTradeRequest --------> RET_OK");
 
     return RET_OK;
 }
 
 void Processor::TickApply(const ConSymbol* symbol, FeedTick* tick) {
-    LOG("Processor::TickApply in thread = %d", GetCurrentThreadId());
     m_tick_map.AddTick(symbol, tick);
 }
