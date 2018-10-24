@@ -1,6 +1,6 @@
 #include <process.h>
 #include <stdio.h>
-#include "Factory.h"
+#include "ServerApi.h"
 #include "Loger.h"
 #include "Processor.h"
 
@@ -30,8 +30,13 @@ Processor::Processor()
     COPY_STR(m_manager.ip, "FeedMonitor");
 }
 
+Processor& Processor::Instance() {
+    static Processor _instance;
+    return _instance;
+}
+
 void Processor::ShowStatus() {
-    if (Factory::GetServerInterface() != NULL && m_requests_total > 0) {
+    if (ServerApi::Api() != NULL && m_requests_total > 0) {
         LOG("'%d': %d of %d requests rejected (%.2lf%%)", m_manager.login, m_rejected_requests, m_requests_total,
             m_rejected_requests * 100.0 / m_requests_total);
     }
@@ -40,22 +45,22 @@ void Processor::ShowStatus() {
 void Processor::Initialize() {
     FUNC_WARDER;
 
-    Factory::GetConfig()->GetInteger("Feed Monitor ID", &m_feed_monitor_login, "271828");
+    Config::Instance().GetInteger("Feed Monitor ID", &m_feed_monitor_login, "271828");
     m_manager.login = m_feed_monitor_login;
-    Factory::GetConfig()->GetInteger("Disable Plugin", &m_disable_feed_monitor, "0");
-    Factory::GetConfig()->GetInteger("default interrupt time", &m_default_interrupt_time, "60");
+    Config::Instance().GetInteger("Disable Plugin", &m_disable_feed_monitor, "0");
+    Config::Instance().GetInteger("default interrupt time", &m_default_interrupt_time, "60");
 
     ConSymbol security;
     m_symbol_settings_count = 0;
-    for (int index = 0; Factory::GetServerInterface()->SymbolsNext(index, &security) != FALSE; index++) {
+    for (int index = 0; ServerApi::Api()->SymbolsNext(index, &security) != FALSE; index++) {
         LOG(security.symbol);
-        if (Factory::GetConfig()->HasKey(security.symbol)) {
+        if (Config::Instance().HasKey(security.symbol)) {
             if (m_symbol_settings_count >= MAX_SYMBOL_SIZE) {
                 return;
             }
             COPY_STR(m_symbol_setting[m_symbol_settings_count].m_symbol, security.symbol);
             int value = 0;
-            Factory::GetConfig()->GetInteger(security.symbol, &value, "60");
+            Config::Instance().GetInteger(security.symbol, &value, "60");
             m_symbol_setting[m_symbol_settings_count++].m_max_interrupt_time = value;
             LOG("%s max interrupt time: %d", security.symbol, value);
         }
@@ -78,9 +83,9 @@ int Processor::FilterTradeRequest(RequestInfo* request) {
 
     int diff = GetInterruptSetting(request->trade.symbol);
     LOG("setting for %s max interrupt time = %d, current time = %d ", request->trade.symbol, diff,
-        Factory::GetServerInterface()->TradeTime());
+        ServerApi::Api()->TradeTime());
 
-    if (diff != -1 && m_tick_map.BeforeTime(request->trade.symbol, Factory::GetServerInterface()->TradeTime() - diff)) {
+    if (diff != -1 && m_tick_map.BeforeTime(request->trade.symbol, ServerApi::Api()->TradeTime() - diff)) {
         LOG("Quote interrupted for a long time.");
         m_rejected_requests++;
         return RET_TRADE_OFFQUOTES;

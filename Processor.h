@@ -12,8 +12,6 @@ struct SymbolSetting {
 };
 
 class Processor {
-    friend class Factory;
-
 private:
     //--- dealer user info
     UserInfo m_manager;
@@ -34,6 +32,8 @@ private:
     Synchronizer m_sync;
 
 public:
+    static Processor& Instance();
+
     inline void Reinitialize() {
         InterlockedExchange(&m_reinitialize_flag, 1);
     }

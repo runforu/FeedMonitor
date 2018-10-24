@@ -1,5 +1,5 @@
 #include "Config.h"
-#include "Factory.h"
+#include "ServerApi.h"
 #include "Loger.h"
 #include "Processor.h"
 
@@ -15,7 +15,7 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD ul_reason_for_call, LPVOID /*lpReser
                 *cp = 0;
                 strcat(tmp, ".ini");
             }
-            Factory::GetConfig()->Load(tmp);
+            Config::Instance().Load(tmp);
             break;
 
         case DLL_THREAD_ATTACH:
@@ -43,40 +43,39 @@ int APIENTRY MtSrvStartup(CServerInterface* server) {
         return (FALSE);
     }
     //--- save server interface link
-    Factory::SetServerInterface(server);
+    ServerApi::Initialize(server);
 
     //--- initialize dealer helper
-    Factory::GetProcessor()->Initialize();
+    Processor::Instance().Initialize();
 
     return (TRUE);
 }
 
 void APIENTRY MtSrvCleanup() {
-    Factory::GetProcessor()->Shutdown();
-    Factory::SetServerInterface(NULL);
+    Processor::Instance().Shutdown();
 }
 
 int APIENTRY MtSrvPluginCfgSet(const PluginCfg* values, const int total) {
     LOG("MtSrvPluginCfgSet total = %d.", total);
-    int res = Factory::GetConfig()->Set(values, total);
-    Factory::GetProcessor()->Reinitialize();
+    int res = Config::Instance().Set(values, total);
+    Processor::Instance().Reinitialize();
     return (res);
 }
 
 int APIENTRY MtSrvPluginCfgNext(const int index, PluginCfg* cfg) {
     LOG("MtSrvPluginCfgNext index=%d, name=%s, value=%s.", index, cfg->name, cfg->value);
-    return Factory::GetConfig()->Next(index, cfg);
+    return Config::Instance().Next(index, cfg);
 }
 
 int APIENTRY MtSrvPluginCfgTotal() {
     LOG("MtSrvPluginCfgTotal.");
-    return Factory::GetConfig()->Total();
+    return Config::Instance().Total();
 }
 
 int APIENTRY MtSrvTradeRequestFilter(RequestInfo* request, const int isdemo) {
-    return Factory::GetProcessor()->FilterTradeRequest(request);
+    return Processor::Instance().FilterTradeRequest(request);
 }
 
 void APIENTRY MtSrvHistoryTickApply(const ConSymbol* symbol, FeedTick* inf) {
-    Factory::GetProcessor()->TickApply(symbol, inf);
+    Processor::Instance().TickApply(symbol, inf);
 }

@@ -3,16 +3,14 @@
 
 #include <time.h>
 #include <windows.h>
-#include "../include/MT4ServerAPI.h"
 #include "Synchronizer.h"
 #include "common.h"
+#include "../include/MT4ServerAPI.h"
 
 //+------------------------------------------------------------------+
 //| Simple configuration                                             |
 //+------------------------------------------------------------------+
 class Config {
-    friend class Factory;
-
 private:
     Synchronizer m_sync;        // synchronizer
     char m_filename[MAX_PATH];  // name of the configuration file
@@ -21,6 +19,8 @@ private:
     int m_cfg_max;              // max number of records
 
 public:
+    static Config& Instance();
+
     //--- Initializing the database (reading the config file)
     void Load(LPCSTR filename);
     void Save(void);
@@ -43,6 +43,7 @@ public:
     int GetLong(LPCSTR name, long* value, LPCSTR defvalue = NULL);
     int GetString(LPCSTR name, LPTSTR value, const int maxlen, LPCSTR defvalue = NULL);
     bool HasKey(LPCSTR name);
+
 private:
     Config();
     ~Config();
@@ -53,6 +54,6 @@ private:
     static int SearchByName(const void* left, const void* right);
 };
 
-//extern Config ExtConfig;
+// extern Config ExtConfig;
 //+------------------------------------------------------------------+
 #endif  // !_CONFIGURATION_H_
