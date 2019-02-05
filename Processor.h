@@ -29,7 +29,7 @@ private:
     int m_requests_total;
     int m_rejected_requests;
 
-    Synchronizer m_sync;
+    //Synchronizer m_sync;
 
 public:
     static Processor& Instance();

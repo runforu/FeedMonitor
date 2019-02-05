@@ -3,7 +3,7 @@
 #include "Loger.h"
 #include "ServerApi.h"
 
-#ifdef _RELEASE_LOG_
+#if defined(_RELEASE_LOG_) || defined(_DEBUG)
 
 void Loger::out(const int code, const char* ip, const char* msg, ...) {
     if (ServerApi::Api() == NULL || msg == NULL) {

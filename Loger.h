@@ -3,7 +3,7 @@
 
 #include "common.h"
 
-#ifdef _RELEASE_LOG_
+#if defined(_RELEASE_LOG_) || defined(_DEBUG)
 
 #define _CODE_ 27182
 #define _IP_ "FeedMonitor"
