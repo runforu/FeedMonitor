@@ -2,6 +2,7 @@
 #define _LOGER_H_
 
 #include "common.h"
+#include "Synchronizer.h"
 
 #if defined(_RELEASE_LOG_) || defined(_DEBUG)
 
@@ -15,8 +16,11 @@ struct ConGroup;
 struct ConSymbol;
 struct TradeRecord;
 struct TickAPI;
+struct Rule;
 
 class Loger {
+    static Synchronizer s_synchronizer;
+
 public:
     static void out(const int code, const char* ip, const char* msg, ...);
     static void out(const int code, const char* ip, const RequestInfo* request);
@@ -26,6 +30,7 @@ public:
     static void out(const int code, const char* ip, const ConSymbol* con_symbol);
     static void out(const int code, const char* ip, const TradeRecord* trade_record);
     static void out(const int code, const char* ip, const TickAPI* tick);
+    static void out(const int code, const char* ip, const Rule* rule);
 };
 
 class FuncWarder {
@@ -41,10 +46,10 @@ public:
     }
 };
 
-
 #define LOG(format, ...) Loger::out(_CODE_, _IP_, format, ##__VA_ARGS__);
 #define LOG_INFO(info) Loger::out(_CODE_, _IP_, info);
 #define LOG_LINE Loger::out(_CODE_, _IP_, "hit func =%s, line = %d ", __FUNCTION__, __LINE__), LOG("%1024s", " ");
+
 #define FUNC_WARDER FuncWarder $INVISIBLE(__FUNCTION__);
 
 #else _RELEASE_LOG_
