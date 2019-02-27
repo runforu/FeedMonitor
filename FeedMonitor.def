@@ -9,6 +9,6 @@ EXPORTS
     MtSrvPluginCfgNext
     MtSrvPluginCfgTotal
 
-    MtSrvTradeRequestFilter
+    MtSrvTradeTransaction
 
     MtSrvHistoryTickApply

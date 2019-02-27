@@ -1,7 +1,7 @@
 #include "Config.h"
-#include "ServerApi.h"
 #include "Loger.h"
 #include "Processor.h"
+#include "ServerApi.h"
 
 PluginInfo ExtPluginInfo = {"Feed Monitor", 1, "DH Copyright.", {0}};
 
@@ -72,8 +72,8 @@ int APIENTRY MtSrvPluginCfgTotal() {
     return Config::Instance().Total();
 }
 
-int APIENTRY MtSrvTradeRequestFilter(RequestInfo* request, const int isdemo) {
-    return Processor::Instance().FilterTradeRequest(request);
+int APIENTRY MtSrvTradeTransaction(TradeTransInfo* trans, const UserInfo* user, int* request_id) {
+    return Processor::Instance().FilterTradeRequest(trans);
 }
 
 void APIENTRY MtSrvHistoryTickApply(const ConSymbol* symbol, FeedTick* inf) {

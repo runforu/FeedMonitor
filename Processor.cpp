@@ -67,7 +67,7 @@ void Processor::Initialize() {
     }
 }
 
-int Processor::FilterTradeRequest(RequestInfo* request) {
+int Processor::FilterTradeRequest(TradeTransInfo* trans) {
     FUNC_WARDER;
 
     //--- reinitialize if configuration changed
@@ -81,11 +81,11 @@ int Processor::FilterTradeRequest(RequestInfo* request) {
 
     m_requests_total++;
 
-    int diff = GetInterruptSetting(request->trade.symbol);
-    LOG("setting for %s max interrupt time = %d, current time = %d ", request->trade.symbol, diff,
+    int diff = GetInterruptSetting(trans->symbol);
+    LOG("setting for %s max interrupt time = %d, current time = %d ", trans->symbol, diff,
         ServerApi::Api()->TradeTime());
 
-    if (diff != -1 && m_tick_map.BeforeTime(request->trade.symbol, ServerApi::Api()->TradeTime() - diff)) {
+    if (diff != -1 && m_tick_map.BeforeTime(trans->symbol, ServerApi::Api()->TradeTime() - diff)) {
         LOG("Quote interrupted for a long time.");
         m_rejected_requests++;
         return RET_TRADE_OFFQUOTES;

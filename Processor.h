@@ -38,7 +38,7 @@ public:
         InterlockedExchange(&m_reinitialize_flag, 1);
     }
     void ShowStatus();
-    int FilterTradeRequest(RequestInfo* request);
+    int FilterTradeRequest(TradeTransInfo* request);
     void TickApply(const ConSymbol* symbol, FeedTick* tick);
     void Initialize();
     void Shutdown(void);
