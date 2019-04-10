@@ -13,11 +13,7 @@ struct SymbolSetting {
 
 class Processor {
 private:
-    //--- dealer user info
-    UserInfo m_manager;
-
     //--- configurations
-    int m_feed_monitor_login;
     int m_disable_feed_monitor;
     int m_default_interrupt_time;
     SymbolSetting m_symbol_setting[MAX_SYMBOL_SIZE];

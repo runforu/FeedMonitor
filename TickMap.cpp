@@ -17,10 +17,10 @@ void TickMap::AddTick(const ConSymbol* symbol, FeedTick* tick) {
             return;
         } else {
             tp = &m_tick_pool[m_symbol_count++];
+            COPY_STR(tp->m_symbol, symbol->symbol);
         }
     }
 
-    strncpy_s(tp->m_symbol, symbol->symbol, sizeof(tp->m_symbol));
     tp->m_latest_tick.ctm = tick->ctm;
     tp->m_latest_tick.ask = tick->ask;
     tp->m_latest_tick.bid = tick->bid;

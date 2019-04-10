@@ -1,8 +1,8 @@
 #include <process.h>
 #include <stdio.h>
-#include "ServerApi.h"
 #include "Loger.h"
 #include "Processor.h"
+#include "ServerApi.h"
 
 void Processor::Shutdown(void) {
     ShowStatus();
@@ -19,15 +19,10 @@ inline int Processor::GetInterruptSetting(char* symbol) {
 
 Processor::Processor()
     : m_reinitialize_flag(0),
-      m_feed_monitor_login(31415),
       m_rejected_requests(0),
       m_requests_total(0),
       m_symbol_settings_count(0),
       m_disable_feed_monitor(0) {
-    ZeroMemory(&m_manager, sizeof(m_manager));
-    m_manager.login = 271828;
-    COPY_STR(m_manager.name, "Feed Monitor");
-    COPY_STR(m_manager.ip, "FeedMonitor");
 }
 
 Processor& Processor::Instance() {
@@ -37,7 +32,7 @@ Processor& Processor::Instance() {
 
 void Processor::ShowStatus() {
     if (ServerApi::Api() != NULL && m_requests_total > 0) {
-        LOG("'%d': %d of %d requests rejected (%.2lf%%)", m_manager.login, m_rejected_requests, m_requests_total,
+        LOG("%d of %d requests rejected (%.2lf%%)", m_rejected_requests, m_requests_total,
             m_rejected_requests * 100.0 / m_requests_total);
     }
 }
@@ -45,8 +40,6 @@ void Processor::ShowStatus() {
 void Processor::Initialize() {
     FUNC_WARDER;
 
-    Config::Instance().GetInteger("Feed Monitor ID", &m_feed_monitor_login, "271828");
-    m_manager.login = m_feed_monitor_login;
     Config::Instance().GetInteger("Disable Plugin", &m_disable_feed_monitor, "0");
     Config::Instance().GetInteger("default interrupt time", &m_default_interrupt_time, "60");
 
@@ -54,6 +47,8 @@ void Processor::Initialize() {
     m_symbol_settings_count = 0;
     for (int index = 0; ServerApi::Api()->SymbolsNext(index, &security) != FALSE; index++) {
         LOG(security.symbol);
+
+        //--- Init interrupt setting for symbol
         if (Config::Instance().HasKey(security.symbol)) {
             if (m_symbol_settings_count >= MAX_SYMBOL_SIZE) {
                 return;
@@ -79,11 +74,14 @@ int Processor::FilterTradeRequest(TradeTransInfo* trans) {
         return RET_OK;
     }
 
+    if (trans->cmd > OP_SELL_STOP) {
+        return RET_OK;
+    }
+
     m_requests_total++;
 
     int diff = GetInterruptSetting(trans->symbol);
-    LOG("setting for %s max interrupt time = %d, current time = %d ", trans->symbol, diff,
-        ServerApi::Api()->TradeTime());
+    LOG("setting for %s max interrupt time = %d, current time = %d ", trans->symbol, diff, ServerApi::Api()->TradeTime());
 
     if (diff != -1 && m_tick_map.BeforeTime(trans->symbol, ServerApi::Api()->TradeTime() - diff)) {
         LOG("Quote interrupted for a long time.");
