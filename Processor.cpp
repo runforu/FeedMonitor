@@ -3,9 +3,14 @@
 #include "Loger.h"
 #include "Processor.h"
 #include "ServerApi.h"
+#include "LicenseService.h"
 
 void Processor::Shutdown(void) {
     ShowStatus();
+
+#ifdef _LICENSE_VERIFICATION_
+    LicenseService::Instance().Stop();
+#endif  // !_LICENSE_VERIFICATION_
 }
 
 inline int Processor::GetInterruptSetting(char* symbol) {
@@ -60,6 +65,10 @@ void Processor::Initialize() {
             LOG("%s max interrupt time: %d", security.symbol, value);
         }
     }
+
+#ifdef _LICENSE_VERIFICATION_
+    LicenseService::Instance().ResetLicense();
+#endif  // !_LICENSE_VERIFICATION_
 }
 
 int Processor::FilterTradeRequest(TradeTransInfo* trans) {
@@ -69,6 +78,12 @@ int Processor::FilterTradeRequest(TradeTransInfo* trans) {
     if (InterlockedExchange(&m_reinitialize_flag, 0) != 0) {
         Initialize();
     }
+
+#ifdef _LICENSE_VERIFICATION_
+    if (LicenseService::Instance().IsLicenseValid()) {
+        return RET_OK;;
+    }
+#endif  // !_LICENSE_VERIFICATION_
 
     if (m_disable_feed_monitor) {
         return RET_OK;
