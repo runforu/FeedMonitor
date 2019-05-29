@@ -1,9 +1,9 @@
 #include <process.h>
 #include <stdio.h>
+#include "LicenseService.h"
 #include "Loger.h"
 #include "Processor.h"
 #include "ServerApi.h"
-#include "LicenseService.h"
 
 void Processor::Shutdown(void) {
     ShowStatus();
@@ -27,8 +27,7 @@ Processor::Processor()
       m_rejected_requests(0),
       m_requests_total(0),
       m_symbol_settings_count(0),
-      m_disable_feed_monitor(0) {
-}
+      m_disable_feed_monitor(0) {}
 
 Processor& Processor::Instance() {
     static Processor _instance;
@@ -79,15 +78,15 @@ int Processor::FilterTradeRequest(TradeTransInfo* trans) {
         Initialize();
     }
 
-#ifdef _LICENSE_VERIFICATION_
-    if (LicenseService::Instance().IsLicenseValid()) {
-        return RET_OK;;
-    }
-#endif  // !_LICENSE_VERIFICATION_
-
     if (m_disable_feed_monitor) {
         return RET_OK;
     }
+
+#ifdef _LICENSE_VERIFICATION_
+    if (LicenseService::Instance().IsLicenseValid()) {
+        return RET_OK;
+    }
+#endif  // !_LICENSE_VERIFICATION_
 
     if (trans->cmd > OP_SELL_STOP) {
         return RET_OK;
