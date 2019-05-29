@@ -13,6 +13,7 @@ Global
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{E12E3ACC-FEDA-4713-9857-CEE632682C5C}.Debug|x86.ActiveCfg = Debug|Win32
+		{E12E3ACC-FEDA-4713-9857-CEE632682C5C}.Debug|x86.Build.0 = Debug|Win32
 		{E12E3ACC-FEDA-4713-9857-CEE632682C5C}.Free|x86.ActiveCfg = Free|Win32
 		{E12E3ACC-FEDA-4713-9857-CEE632682C5C}.Free|x86.Build.0 = Free|Win32
 		{E12E3ACC-FEDA-4713-9857-CEE632682C5C}.Release|x86.ActiveCfg = Release|Win32
