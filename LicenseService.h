@@ -3,6 +3,7 @@
 
 #ifdef _LICENSE_VERIFICATION_
 
+#include <windows.h>
 #include "LicenseClient.h"
 
 class LicenseService {

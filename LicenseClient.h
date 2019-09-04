@@ -44,6 +44,6 @@ private:
     bool Lookup(const char *server, SOCKADDR_IN *socket_addr);
 };
 
-#endif // !_LICENSE_VERIFICATION_
+#endif  // !_LICENSE_VERIFICATION_
 
 #endif  // !_LICENSECLIENT_H_
